@@ -1,0 +1,123 @@
+The poller recipe
+******************
+
+The poller recipe defines pollers that automatically query the code
+repositories for changes in project code base and then execute the
+builders if changes are found.
+
+Supported options
+=================
+
+The recipe supports the following options:
+
+``vcs``
+
+  The version control system. Defaults to ``svn``. Currently only
+  Subversion repositories are supported.
+
+``repositories``
+
+  A sequence of newline separated URLs to the root of the Subversion
+  repository containing the project code. Note: This is the root URL
+  to the repository and not the full path to your project. You only
+  need to provide one URL per repository, not per project.
+
+``splitter``
+
+  A regexp used to parse paths analyzed by the poller. The regexp must return 2
+  groups. The only important one is the project name to match in a builder
+  repository. 
+
+  Note that the regexp you provide will be treated as in raw-string
+  format for you (e.g. this 
+  ``(?P<project>\S+\/foo|\S+\/bar\/[^\/]+)/(?P<relative>.*))`` becomes
+  ``r'(?P<project>\S+\/foo|\S+\/bar\/[^\/]+)/(?P<relative>.*))'``
+
+  (Default
+  ``'(?P<project>\S+\/trunk|\S+\/branches\/[^\/]+)/(?P<relative>.*)'``).
+
+``hist-max``
+
+  Number of history lines to look at (Default 100).
+
+``user``
+
+  A svn user (Default None).
+
+``password``
+
+  A valid svn password for the user (Default None).
+
+``poll-interval``
+
+  Interval in seconds to check for changes (Default 600).
+
+``svn-binary``
+
+  Path to the ``svn`` binary. Defaults to ``svn`` which should work if
+  you have in your ``PATH``.
+
+Example usage
+=============
+
+We can define a poller to make our buildbot aware of commits:: 
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = svnpoller
+    ... 
+    ... [svnpoller]
+    ... recipe = collective.buildbot:poller
+    ... repositories = http://example.com/svn
+    ... user = h4x0r
+    ... password = passwd
+    ... """)
+
+    >>> print system(buildout)
+    Installing svnpoller.
+    Generated config '/sample-buildout/parts/pollers/svnpoller.cfg'.
+
+Poller generation. You can see here all the available options::
+
+    >>> config_path  = os.path.join('parts', 'pollers', 'svnpoller.cfg')
+    >>> config = ConfigParser()
+    >>> _ = config.read(config_path)
+    >>> res = []
+    >>> for opt, val in (('hist-max', '100'), 
+    ...     ('repository','http://example.com/svn'),
+    ...     ('vcs','svn'),
+    ...     ('user','h4x0r'),
+    ...     ('svn-binary','svn'),
+    ...     ('password','passwd'),
+    ...     ('poll-interval','60')
+    ... ):
+    ...     res.append(bool(val == config.get('poller', opt)))
+    >>> False not in res
+    True
+
+You can also have the poller to observe multiple repositories.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = svnpoller
+    ... 
+    ... [svnpoller]
+    ... recipe = collective.buildbot:poller
+    ... repositories =
+    ...     http://example.com/svn
+    ...     http://otherexample.com/svn
+    ...     http://other.server.com/svn
+    ... user = h4x0r
+    ... password = passwd
+    ... """)
+
+    >>> print system(buildout)
+    Uninstalling svnpoller.
+    Installing svnpoller.
+    Generated config '/sample-buildout/parts/pollers/svnpoller_0.cfg'.
+    Generated config '/sample-buildout/parts/pollers/svnpoller_1.cfg'.
+    Generated config '/sample-buildout/parts/pollers/svnpoller_2.cfg'.
+    <BLANKLINE>
+

@@ -1,0 +1,17 @@
+[buildout]
+extends = master.cfg slave.cfg
+parts = 
+    master
+    ${egg}
+    ${hostname}
+# uncomment this to enable polling
+#    poller
+# uncomment this to install buildbot command line tools
+#    buildbot-script
+
+[buildbot-script]
+recipe = zc.recipe.egg
+eggs = buildbot
+entry-points = buildbot-script=pkg_resources:run_script
+arguments = 'buildbot', 'buildbot'
+

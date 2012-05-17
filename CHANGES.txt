@@ -1,0 +1,289 @@
+0.4.2 (unreleased)
+==================
+
+  - Add trove category for Buildout recipes.
+    [kdeldycke]
+
+  - Add option to format mail specific for zope-test mailing list.
+    [do3cc]
+
+
+0.4.1 (2010-04-13)
+==================
+
+  - Add hg-branch-type option and support branch for Mercurial.
+    [thefunny42]
+
+
+0.4 (2010-02-19)
+================
+
+  - Set extended CSS as the default style. This was imported from brand new
+    buildbot v0.7.12.
+    [kdeldycke]
+
+  - Projects are now sorted by ids.
+    [thefunny42]
+
+  - Slaves can use different python interpreter than the buildout
+    does. You can define your interpretor with the ``executable``
+    option.
+    [thefunny42]
+
+  - Values like ``*/4`` or ``8,12,16`` are now supported as valid cron
+    specifiers.
+    [thefunny42]
+
+
+0.3.7 (2010-01-24)
+==================
+
+  - add num_events and num_events_max parameters. Thanks to Baiju M.
+    [gawel]
+
+  - buildbot requires the max_builds slave parameter to be an integer.
+    [kdeldycke]
+
+
+0.3.6 (2009-12-22)
+==================
+
+  - Better fix for similar project names that occur in different buildout
+    parts.  For svn projects, this fixes that _trunk is appended unnecessarily
+    and it allows the automatic projectname_branchname names to work again.
+
+  - Setting "usepty" in the slave.tac to buildbot's new default of 0.  See
+    http://buildbot.net/trac/ticket/158 and especially
+    http://buildbot.net/trac/ticket/255 .  This fixes problems with simple
+    shell commands like "cp" and "rm" failing for no apparent good reason.
+    And the stdio output seems to react much quicker now: nice.
+    [reinout]
+
+  - Allow configuration updates to work again.
+    [hannosch]
+
+  - Add possibility to use the default scheduler that triggers a build after
+    every change using a grace period waiting for more changes.
+    [witsch]
+
+  - When using svn and you test multiple branches of the same project, you now
+    get project_branch-a, project_branch-b instead of project_2, project_3.
+    Named after the branch/tag name.
+    [reinout]
+
+  - SVNScheduler changed the incoming change object in addChange to match
+    to its internal structure. But the change is reused in the next project
+    where it won't match any longer because of the change.
+    [do3cc]
+
+  - Offering two more mail features of buildbot for configuration in
+    collective.buildbot mail-mode and mail-lookup. See updated
+    collective.buildbot documentation [do3cc]
+
+  - Fixed an issue with similar project names that appeared in different
+    buildout parts [do3cc]
+
+  - Fixed an issue with multiple repositories in a poller recipe
+    [do3cc]
+
+
+0.3.5 (2009-07-17)
+====================
+
+  - buildbot 0.7.11 compatibility
+
+  - various small fixes
+
+
+0.3.4 (2009-05-21)
+====================
+
+  - Remove useless imports in docs.
+    [gawel]
+
+  - Possible to configure ``PBListener``
+    [stxnext]
+
+  - Added support for CVS repositories in project recipe. Location of code in
+    CVS is described by `cvsroot` and `cvsmodule`. This two parameters are
+    taken by spliting on `!` sign on repository location.
+    [stxnext]
+
+  - IRC bot can join password protected channels.
+    [stxnext]
+
+  - Refactor of all doctests that demonstrate recipes that subclass BaseRecipe
+    and rely upon it's write_config method. The implementation relies upon the
+    ConfigParser module which utilizes a dictionary data structure for storage
+    of sections and options. This can never be assumed to be ordered across
+    Python versions and we really shouldn't care upon order in our
+    implementation. Tests now verify existence within intended section and
+    correct value, rather than placement.
+    [andrewb]
+
+  - Completing work from r67547 (e.g. Fixed occurrences of
+    `email-notification-recipients` to the plural form).  When initializing
+    collective.buildbot.project.Project we want to actually look for the plural
+    version.  Additionally, we want our comment regarding notifications in
+    master.cfg_tmpl to suggest the correct value to be set.
+    [andrewb]
+
+  - Make timeout configurable, globally and independently for build
+    and test steps.
+    [sidnei]
+
+  - Strip always_use_latest option to avoid issues with whitespace.
+    [sidnei]
+
+  - Make Source Checkout retry up to 3 times, 10 seconds
+    apart. Somehow later versions of buildbot seem to fail much more
+    often when removing the checkout directory, and hopefully this
+    will work around that.
+    [sidnei]
+
+  - Make Source Checkout mode configurable through ``vcs-mode``.
+    [sidnei]
+
+  - Make ``build`` steps set ``haltOnFailure=True``. No point in doing
+    any testing if the build steps failed.
+    [sidnei]
+
+  - Fixed compatibility problem with buildbot 0.7.9
+    [dokai]
+
+  - Fixed problem with the test suite initialization which resulted in all
+    the doctests not being run. Also fixed test regressions that had surfaced
+    undetected because of the problem.
+    [dokai]
+
+0.3.3 (2008-09-26)
+==================
+
+  - Apply patch from Chris Shenton to override default umask
+    [gawel]
+
+  - Improve default template configuration
+    [gawel]
+
+  - Add clean css to template
+    [gawel]
+
+0.3.2 (2008-09-14)
+==================
+
+  - Add paster template to quickly generate a basic configuration
+    [gawel]
+
+  - Fixed occurrences of `email-notification-recipients` to the singular form
+    as used in most places.
+    [hannosch]
+
+  - Added a mechanism to have username/password for Subversion authentication
+    Which consists of a buildbot patch and a link to .httpauth on buildout
+    side
+    [tarek]
+
+  - Add dependency between projects. The build of one project can
+    trigger the build of one other. [thefunny]
+
+  - Improve the virtual env creation for Windows (mingw) and Cygwin.
+    Installation of eggs works with mingw, and we should get a python
+    ../../bin/python for Cygwin as well (symlink to the python used to
+    run buildout). [thefunny]
+
+0.3.1 (2008-05-31)
+==================
+
+  - Fixed poller documentation and examples [mustapha]
+
+  - Fixed failed tests when your executable is called something other
+    than python, e.g python2.4 [mustapha]
+
+0.3.0 (2008-05-28)
+==================
+
+  - Use a custom scheduler to get poller working again [gawel]
+
+  - Add splitter option to the poller recipe [gawel]
+
+  - Added support for running PyFlakes on projects [dokai]
+
+  - Refactored project name extraction logic [dokai]
+
+    - Added Git support
+
+    - Added support for defining multiple projects that result in
+      duplicate project names (e.g. projects referring to different
+      branches in a Subversion repository.)
+
+  - Try to retrieve project name from svn urls [gawel]
+
+  - Use a random minute in cron-scheduler when we have more than one
+    repository [gawel]
+
+  - Deactive virtualenv under cygwin, this doesn't work [thefunny]
+
+  - 'environment' can be used to specify environment variable on
+    slaves [thefunny]
+
+  - 'eggs' can be used to install extra eggs in slaves [thefunny]
+
+  - Refactored the functionality of the 'projects' recipe into the
+    'project' recipe and removed the 'projects' entry point. [dokai]
+
+  - Refactored the functionality of the 'pollers' recipe into the
+    'poller' recipe and removed the 'pollers' entry point. [dokai]
+
+  - Poller config files are now named after the section name, allowing
+    multiple poller sections to be defined. [dokai]
+
+0.2.1 (2008-05-21)
+==================
+
+  - Fixed a critical typo in the slave name configuration in
+    fullexample.txt [dokai]
+
+0.2.0 (2008-05-21)
+==================
+
+  - Added irc options so you can attach an irc bot to the master buildbot
+    [mustapha]
+
+  - Allow public_html customization [gawel]
+
+  - Added custom about page to link to collective.buildout [gawel]
+
+  - Added support for Git repositories [dokai]
+
+  - Refactored the repository URL configuration. For Subversion, you
+    should use only the ``repository`` option to specify a full URL to
+    the desired branch (trunk, tag or branch) that will be built. For
+    Git in addition to setting the ``repository`` option you can use
+    the ``branch`` option to specify a specific branch to build. By
+    default the ``master`` branch will be used for Git
+    repositories. [dokai]
+
+  - Cleaned up a lot of redundant imports. [dokai]
+
+  - Updated the documentation and examples. [dokai]
+
+  - Deprecated the collective.buildbot:projects recipe [dokai]
+
+  - Fixed problem with missing twistd.log files on first run [dokai]
+
+  - Fixed bug that prevented the master from starting if there weren't
+    any SVN pollers configured. [dokai]
+
+  - Added new options ``periodic-scheduler`` and ``cron-scheduler`` to
+    set up passive schedulers for projects. [dokai]
+
+
+0.1.1 (2008-05-02)
+==================
+
+  - bugs fixes [gawel]
+
+0.1.0 (xxxx-xx-xx)
+==================
+
+ - Created recipe with ZopeSkel [Gael Pasgrimaud].

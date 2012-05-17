@@ -1,0 +1,355 @@
+The project recipe
+******************
+
+The ``collective.buildbot:project`` recipe is responsible for creating
+the buildbot configuration for a project which is a single testable
+component. Whether this project corresponds to a single sofware
+package or many is up to you. In most cases a project corresponds to a
+buildout which in turn may contain one or many software packages. Each
+project has a separate state and is visualized as a column in the
+waterfall display.
+
+This recipe should be used in the same buildout with
+``collective.buildbot:master``.
+
+
+Supported options
+=================
+
+The recipe supports the following options:
+
+``slave-names`` (mandatory)
+
+  A white-space separated list of slave names that the project will be
+  built on. These must correspond to the section names that use the
+  ``collective.buildbot:slave`` recipe and that are consequently
+  referred in the ``slaves`` option of the section using the
+  ``collective.buildbot:master`` recipe.
+
+``vcs`` (optional)
+
+  The version control system used to obtain the source code for the
+  project. Defaults to ``svn``. Other possible values are: ``hg``,
+  ``bzr``, ``git`` and ``cvs``.
+
+``vcs-mode`` (optional)
+
+  The mode used to fetch the source code from the version control
+  system. Defaults to ``update``. Other possible values are:
+  ``clobber``, ``copy`` and ``export``. See the buildbot manual
+  section for ``Source Checkout`` for a description of what each
+  option does.
+
+``repositories`` (mandatory)
+
+  A sequence of newline separated URLs to the code repositories that
+  correspond to the selected version control system. For Subversion
+  this could be something like
+  ``https://svn.plone.org/svn/collective/collective.buildbot/trunk``
+  for Git something like
+  ``git@github.com:dokai/hexagonit-swfheader.git``
+  and for CVS like
+  ``:pserver:anonymous@cvs.sourceforge.net:/cvsroot/buildbot!buildbot``.
+
+  For Subversion, if the url root is found in HOME/.buildout/.httpauth,
+  username and password will be used to perform checkouts and updates.
+  See: http://pypi.python.org/pypi/lovely.buildouthttp.
+
+  For each repository you define, a separate Buildbot project
+  configuration will be generated that shares all the other
+  options. This is useful if you have multiple similar projects within
+  the same repository and can save you a lot of typing. Since
+  Subversion URLs contain the branch information it is even possible
+  to pull in code from separate branches. For other version control
+  system that use the ``branch`` option (e.g. Git) you're limited to a
+  single shared branch name.
+
+``branch`` (optional)
+
+  The branch in the version control system that will be checked out. For
+  Subversion checkouts you should provide the full URL to the desired branch
+  (e.g. something that ends with ``trunk`` or ``branches/foo``) and leave this
+  option empty. For Git repositories the default value is ``master``. Note
+  that for Git repositories you can use any identifier that resolves to (in
+  the git rev-parse sense) to a treeish object.
+
+``always-use-latest`` (optional, defaults to ``False``)
+
+  Whether to always update to the most recent available sources for
+  this build. Please refer to the 'alwaysUseLatest' option of
+  ``buildbot.steps.source.Source`` for more info.
+
+  Basically, if your buildbot is watching changes from multiple
+  repositories it is very likely that you will need to set this option
+  to ``True``.
+
+``hg-branch-type`` (optional, defaults to ``inrepo``)
+
+  If mercurial is used, define which branch type to use. By default it
+  is ``inrepo``. An another possible value is ``dirname``.
+
+``email-notification-sender`` (optional)
+
+  An email address that will be used in the From: header for the
+  notification messages.
+
+``email-notification-recipients`` (optional)
+
+  A newline separated sequence of email addresses the notification
+  messages will be sent to.
+
+``mail-mode`` (optional)
+
+  The mode to use for sending mails. Available options are:
+
+  * all
+
+    Send mail about all builds, both passing and failing
+
+  * failing
+
+    Only send mail about builds which fail
+
+  * problem
+
+    Only send mail about a build which failed when the previous build
+    has passed. If your builds usually pass, then this will only send
+    mail when a problem occurs.
+
+  Defaults to::
+    
+    failing
+
+``email-zope-test-style`` (optional)
+
+  An option to set whether mails should be sent in a format that a specific
+  zope bot understands. More information can be found here:
+  http://docs.zope.org/zopetoolkit/process/buildbots.html
+
+``build-sequence`` (optional)
+
+  A newline separated sequence of shell commands executed on the build
+  slave after checking out the code from the repository that will
+  build the project.
+
+  Defaults to::
+
+    bin/python bootstrap.py
+    bin/buildout
+
+  which is appropriate for buildout based projects.
+  
+  If a command starts with python, the command will be replaced with the
+  full path to the python of the buildbot slave. The slave has its own
+  virtualenv python
+
+``test-sequence`` (optional)
+
+  A newline separated sequence of shell commands executed on the build
+  slave to execute the test suite. Defaults to::
+
+    bin/test
+
+``default-scheduler`` (optional)
+
+  Sets up the default scheduler that triggers a build after every change
+  using a grace period waiting for more changes.  The period can be specified
+  in seconds.
+
+``periodic-scheduler`` (optional)
+
+  Sets up a periodic scheduler that schedules a build every ``n``
+  minutes, where ``n`` is the given integer value.
+
+``cron-scheduler`` (optional)
+
+  Sets up a cron-like scheduler that schedules a build at a given
+  time. The time is configured in a crontab manner using white space
+  separated values for the following fields::
+
+    [minute] [hour] [day of month] [month] [day of week]
+
+  The values should be either:
+
+  - integers in the appropriate range for the given field,
+
+  - a list of intergers in the format ``2,4,6``. Specified integers
+    needs to be in the appropriate range for the given field,
+
+  - ``*/n`` where ``n`` is an integer which means every ``n`` integers
+    in the appropriate range of the given field,
+
+  - ``*`` (asterisk) for all possible values of the field.
+
+  For example to schedule a build at 3:00 am every night you would
+  use::
+
+    cron-scheduler = 0 3 * * *
+
+  To schedule a build every 2 hours on the quarter of the time, you
+  would use::
+
+    cron-scheduler = 15 */2 * * *
+
+``dependent-scheduler`` (optional)
+
+  Sets up a dependency between the given project and the current
+  one. After a successful build of the given project, this one will be
+  triggered.
+
+``dependencies`` (optional)
+
+  A sequence of newline-separated paths that when found on a change
+  set should cause a build to be triggered on this slave.
+
+  For example, if you would like to cause your build to be run
+  whenever a change to a project you depend on named
+  ``some.other-project`` happens, you would use::
+
+    dependencies = some.other-project/trunk
+
+  The paths you list here are checked using substring matching. So for
+  example, if you don't care which branch of ``some.other-project``
+  has changed, you could use::
+
+    dependencies = some.other-project
+
+  Or, alternatively, if you only care if a single file inside that
+  project is changed, you could use a more specific path as well::
+
+    dependencies = some.other-project/trunk/versions.cfg
+
+``pyflakes`` (optional)
+
+  A sequence of newline separated PyFlakes_ commands to run. If
+  defined, the given PyFlakes commands will be run after the test
+  sequence.
+
+  The commands should consist of a path to the ``pyflakes`` script and
+  a path to the source code container. For example, using a global
+  pyflakes installation on a project located under
+  ``src/some.project`` within the build directory you would set::
+
+    pyflakes = pyflakes src/some.project
+
+  You can also have your slave buildout install pyflakes and use that
+  instead of a globally installed version.
+
+  .. _PyFlakes: http://divmod.org/trac/wiki/DivmodPyflakes
+
+Example usage
+=============
+
+We'll start by creating a buildout that uses the recipe. A full
+example would propably have other sections defining the build master
+and slaves, but here we will demonstrate only the use of the
+``collective.buildbot:project`` recipe.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = my.package other.package
+    ...
+    ... [my.package]
+    ... recipe = collective.buildbot:project
+    ... email-notification-sender = email@example.com
+    ... slave-names = slave1
+    ... mail-host = localhost
+    ... email-notification-recipients = 
+    ... 	email@example.com
+    ... vcs = svn
+    ... vcs-mode = clobber
+    ... repositories = http://example.com/svn/my.package/trunk
+    ... always-use-latest = yes
+    ...
+    ... [other.package]
+    ... recipe = collective.buildbot:project
+    ... slave-names = slave1
+    ... vcs = git
+    ... branch = 3720f2e9b3a6a148b01843bc64fbea5af59df2af
+    ... repositories = git://github.com/dokai/other.package.git
+    ... dependencies = my.package/trunk
+    ... """)
+
+Running the buildout gives us::
+
+    >>> print system(buildout)
+    Installing my.package.
+    Generated config '/sample-buildout/parts/projects/my.package.cfg'.
+    Installing other.package.
+    Generated config '/sample-buildout/parts/projects/other.package.cfg'.
+
+As we can see, the recipe generated the project configuration files
+under the ``projects`` directory in the parts::
+
+    >>> config_path  = os.path.join('parts', 'projects', 'my.package.cfg')
+    >>> config = ConfigParser()
+    >>> _ = config.read(config_path)
+    >>> res = []
+    >>> for opt, val in (('name', 'my.package'), 
+    ...     ('repository','http://example.com/svn/my.package/trunk'),
+    ...     ('email-notification-sender', 'email@example.com'),
+    ...     ('slave-names', 'slave1'),
+    ...     ('mail-host', 'localhost'),
+    ...     ('email-notification-recipients', '\nemail@example.com'),
+    ...     ('vcs', 'svn'),
+    ...     ('vcs-mode', 'clobber'),
+    ...     ('always-use-latest', 'yes'),
+    ... ):
+    ...     res.append(bool(val == config.get('project', opt)))
+    >>> False not in res
+    True
+
+    >>> config_path  = os.path.join('parts', 'projects', 'other.package.cfg')
+    >>> config = ConfigParser()
+    >>> _ = config.read(config_path)
+    >>> res = []
+    >>> for opt, val in (('name', 'other.package'), 
+    ...     ('repository', 'git://github.com/dokai/other.package.git'),
+    ...     ('slave-names', 'slave1'),
+    ...     ('vcs', 'git'),
+    ...     ('dependencies', 'my.package/trunk'),
+    ...     ('branch', '3720f2e9b3a6a148b01843bc64fbea5af59df2af'),
+    ... ):
+    ...     res.append(bool(val == config.get('project', opt)))
+    >>> False not in res
+    True
+
+If you have multiple similar projects you can define them within a
+single buildout section by providing multiple repository URLs. All the
+projects share the same options (except the repository URL). To
+further reduce repetition we've defined the base URL to our repository
+in the buildout section::
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = my_project
+    ... svn = http://svn.example.com/svnroot
+    ...
+    ... [my_project]
+    ... recipe = collective.buildbot:project
+    ... slave-names = slave1
+    ... vcs = svn
+    ... repositories =
+    ...    ${buildout:svn}/my.package/trunk
+    ...    ${buildout:svn}/other.package/tags/1.2.3
+    ...    ${buildout:svn}/third.package/branches/foobar
+    ...    ${buildout:svn}/third.package/branches/another
+    ...    ${buildout:svn}/third.package/branches/another
+    ... """)
+
+When we run the buildout we can see that it generated a separate configuration
+file for each project representing a single repository.  A branch name is used
+as extra identifier if detectable, otherwise an integer is added::
+
+    >>> print system(buildout)
+    Uninstalling other.package.
+    Uninstalling my.package.
+    Installing my_project.
+    Generated config '/sample-buildout/parts/projects/my.package.cfg'.
+    Generated config '/sample-buildout/parts/projects/other.package.cfg'.
+    Generated config '/sample-buildout/parts/projects/third.package.cfg'.
+    Generated config '/sample-buildout/parts/projects/third.package_another.cfg'.
+    Generated config '/sample-buildout/parts/projects/third.package_2.cfg'.
+

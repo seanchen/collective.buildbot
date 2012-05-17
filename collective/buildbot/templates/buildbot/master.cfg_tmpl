@@ -1,0 +1,73 @@
+[buildout]
+master-parts =
+    master
+    ${egg}
+# uncomment this to enable polling
+#    poller
+
+[master]
+recipe = ${recipe}:master
+project-name = ${project} project
+project-url = http://${hostname}:${wport}/
+
+# allow to force build with the web interface
+allow-force = true
+
+# internal port
+port = ${port}
+
+# http port
+wport = ${wport}
+
+# buildbot url. change this if you use a virtualhost
+url = http://${hostname}:${wport}/
+
+# static files
+public-html = ${directory}/public_html
+
+slaves =
+    ${hostname} ${password}
+
+# maximum number of builds to run on one slave
+#max-builds = 2
+
+[${project}]
+recipe = ${recipe}:project
+slave-names = ${hostname}
+vcs = ${vcs}
+repositories = ${vcs_url}
+
+# notifications
+#mail-host = localhost
+#email-notification-sender = buildbot@${hostname}
+#email-notification-recipients =
+#    my.project@my.company.com
+
+# run test each hour
+#periodic-scheduler=60
+
+# cron build
+cron-scheduler = 0 8 * * *
+
+
+# You can change the sequences to build / test your app
+# default options should work for most buildout based projects
+#build-sequence =
+#    /usr/bin/python2.5 bootstrap.py -c project.cfg
+#    /usr/bin/python2.5 bin/buildout -c project.cfg
+
+test-sequence =
+    bin/test
+# zope.testing require exit with status
+#    bin/test --exit-with-status
+
+[poller]
+recipe = ${recipe}:poller
+# dont forget to check this
+# since it's generated from the paster template it may be a wrong url
+repositories = ${vcs_root}
+#user = h4x0r
+#password = passwd
+poll-interval = 120
+
+

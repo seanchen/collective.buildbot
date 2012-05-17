@@ -1,0 +1,17 @@
+Project initiated at Ingeniweb (http://ingeniweb.com)
+
+Initial Authors:
+ - Gael Pasgrimaud
+ - Tarek Ziade
+
+Moved to the collective during the Plone Paris Sprint 2008.
+
+Contributors:
+ - Gael Pasgrimaud [gawel]
+ - Tarek Ziade [tarek]
+ - Kai Lautaportti [dokai]
+ - Jean-Francois Roche
+ - Mustapha Benali [mustapha]
+ - Sylvain Viollon [thefunny]
+ - Reinout van Rees [reinout]
+ - Kevin Deldycke [kdeldycke]
